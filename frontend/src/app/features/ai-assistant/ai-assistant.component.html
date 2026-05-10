@@ -89,7 +89,7 @@
           <div class="message-meta">
             <span class="message-time">{{ message.timestamp | date:'short' }}</span>
             <span class="message-action" *ngIf="message.actions?.length">
-              - {{ message.actions.join(', ') }}
+              - {{ message.actions?.join(', ') }}
             </span>
           </div>
         </div>

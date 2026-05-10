@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Production-ready full-stack productivity application",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "workspaces": [
     "frontend",
     "backend"
