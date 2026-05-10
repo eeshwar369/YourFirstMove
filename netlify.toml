@@ -6,13 +6,11 @@
 [build.environment]
   NODE_VERSION = "18.20.6"
 
-# After your Render backend is live, either change Angular's production apiUrl
-# to the Render URL or uncomment this proxy and replace the hostname.
-# [[redirects]]
-#   from = "/api/*"
-#   to = "https://your-render-backend-url.onrender.com/api/:splat"
-#   status = 200
-#   force = true
+[[redirects]]
+  from = "/api/*"
+  to = "https://yourfirstmove.onrender.com/api/:splat"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
