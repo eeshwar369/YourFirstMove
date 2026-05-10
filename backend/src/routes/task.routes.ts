@@ -164,10 +164,11 @@ router.post('/duplicate-day', async (req: AuthRequest, res, next) => {
     const { sourceDate, targetDate } = req.body;
     
     if (!sourceDate || !targetDate) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: 'sourceDate and targetDate are required' }
       });
+      return;
     }
     
     const duplicatedTasks = await taskService.duplicateDaySchedule(

@@ -53,7 +53,6 @@ export class AnalyticsService {
       const completionRates: number[] = [];
       const taskCounts: number[] = [];
 
-      const endDate = new Date();
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 

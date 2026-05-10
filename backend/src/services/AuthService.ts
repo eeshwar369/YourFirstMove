@@ -72,6 +72,10 @@ export class AuthService {
         throw new Error('Invalid credentials');
       }
 
+      if (!user.password_hash) {
+        throw new Error('Invalid credentials');
+      }
+
       // Verify password
       const isValid = await this.comparePassword(credentials.password, user.password_hash);
       if (!isValid) {
@@ -114,7 +118,11 @@ export class AuthService {
   }
 
   generateToken(userId: number): string {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+    const options: jwt.SignOptions = {
+      expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
+    };
+
+    return jwt.sign({ userId }, JWT_SECRET, options);
   }
 
   async getUserById(userId: number): Promise<User | undefined> {

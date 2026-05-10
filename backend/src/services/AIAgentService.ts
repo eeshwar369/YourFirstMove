@@ -206,11 +206,13 @@ export class AIAgentService {
       }
 
       for (const toolCall of assistantMessage.tool_calls) {
-        const args = this.parseToolArguments(toolCall.function.arguments);
-        const result = await this.executeTool(toolCall.function.name, userId, args);
+        const functionToolCall = toolCall as any;
+        const functionName = functionToolCall.function.name;
+        const args = this.parseToolArguments(functionToolCall.function.arguments);
+        const result = await this.executeTool(functionName, userId, args);
 
         executedTools.push({
-          name: toolCall.function.name,
+          name: functionName,
           args,
           result,
         });
@@ -244,7 +246,7 @@ export class AIAgentService {
       name: tool.name,
       description: tool.description,
       input_schema: tool.inputSchema,
-    }));
+    })) as any;
 
     const messages: any[] = [
       ...conversationHistory.map((message) => ({
@@ -271,7 +273,7 @@ export class AIAgentService {
         content: response.content,
       });
 
-      const toolUses = response.content.filter((block: any) => block.type === 'tool_use');
+      const toolUses = response.content.filter((block: any) => block.type === 'tool_use') as any[];
 
       if (toolUses.length === 0) {
         const text = response.content

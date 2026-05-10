@@ -342,7 +342,7 @@ export class TaskService {
           is_critical: Boolean(sourceTask.is_critical),
           is_completed: false,
           display_order: sourceTask.display_order || 0,
-        });
+        } as any);
         
         logger.info(`Created duplicate task with ID: ${newTask.id}`);
         duplicatedTasks.push(newTask);

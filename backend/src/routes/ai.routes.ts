@@ -14,7 +14,7 @@ const conversationStore = new Map<number, any[]>();
 /**
  * Check if AI service is available
  */
-router.get('/status', (req: AuthRequest, res) => {
+router.get('/status', (_req: AuthRequest, res) => {
   const isAvailable = aiAgentService.isAvailable();
   const providers = aiAgentService.getAvailableProviders();
   const providerStatus = aiAgentService.getProviderStatus();
@@ -41,19 +41,21 @@ router.post('/chat', async (req: AuthRequest, res, next) => {
     const { message, provider = 'auto' } = req.body;
 
     if (!message || typeof message !== 'string') {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: 'Message is required and must be a string' },
       });
+      return;
     }
 
     if (!aiAgentService.isAvailable()) {
-      return res.status(503).json({
+      res.status(503).json({
         success: false,
         error: {
           message: 'AI Agent is not available. Please configure OPENAI_API_KEY or ANTHROPIC_API_KEY.',
         },
       });
+      return;
     }
 
     // Get conversation history for this user
@@ -141,10 +143,11 @@ router.get('/conversation', (req: AuthRequest, res) => {
 router.get('/suggestions', async (req: AuthRequest, res, next) => {
   try {
     if (!aiAgentService.isAvailable()) {
-      return res.status(503).json({
+      res.status(503).json({
         success: false,
         error: { message: 'AI Agent is not available' },
       });
+      return;
     }
 
     const userId = req.userId!;
