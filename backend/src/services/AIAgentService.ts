@@ -259,7 +259,7 @@ export class AIAgentService {
     const executedTools: ExecutedTool[] = [];
 
     for (let round = 0; round < this.maxToolRounds; round += 1) {
-      const response = await this.anthropic.messages.create({
+      const response = await (this.anthropic as any).messages.create({
         model: this.anthropicModel,
         max_tokens: 2048,
         temperature: 0.2,
