@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { TaskService } from '../../core/services/task.service';
 import { Task } from '../../core/models/task.model';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -6,6 +6,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { TaskFormComponent } from '../tasks/task-form/task-form.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AgentSyncService } from '../../core/services/agent-sync.service';
 
 interface TimeSlot {
   hour: number;
@@ -18,7 +20,7 @@ interface TimeSlot {
   templateUrl: './roadmap.component.html',
   styleUrls: ['./roadmap.component.scss']
 })
-export class RoadmapComponent implements OnInit {
+export class RoadmapComponent implements OnInit, OnDestroy {
   tasks: Task[] = [];
   loading = false;
   completingTaskId: number | null = null;
@@ -33,13 +35,15 @@ export class RoadmapComponent implements OnInit {
   duplicateSourceDate = '';
   duplicateTargetDate = '';
   duplicating = false;
+  private syncSubscription?: Subscription;
 
   constructor(
     private taskService: TaskService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private agentSyncService: AgentSyncService
   ) {
     // Update current time every minute
     setInterval(() => {
@@ -55,6 +59,20 @@ export class RoadmapComponent implements OnInit {
       }
       this.loadTasks();
     });
+
+    this.syncSubscription = this.agentSyncService.effects$.subscribe((effects) => {
+      if (!effects.refreshTasks) {
+        return;
+      }
+
+      if (!effects.affectedDates || effects.affectedDates.includes(this.selectedDate)) {
+        this.loadTasks();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.syncSubscription?.unsubscribe();
   }
 
   loadTasks(): void {

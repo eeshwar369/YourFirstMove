@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TaskService } from '../../core/services/task.service';
 import { Task } from '../../core/models/task.model';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AgentSyncService } from '../../core/services/agent-sync.service';
 
 interface CalendarDay {
   date: Date;
@@ -19,22 +21,37 @@ interface CalendarDay {
   templateUrl: './monthly-calendar.component.html',
   styleUrls: ['./monthly-calendar.component.scss']
 })
-export class MonthlyCalendarComponent implements OnInit {
+export class MonthlyCalendarComponent implements OnInit, OnDestroy {
   currentDate = new Date();
   calendarDays: CalendarDay[] = [];
   loading = false;
   monthName = '';
   year = 0;
+  private syncSubscription?: Subscription;
 
   weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   constructor(
     private taskService: TaskService,
-    private router: Router
+    private router: Router,
+    private agentSyncService: AgentSyncService
   ) {}
 
   ngOnInit(): void {
     this.loadCalendar();
+    this.syncSubscription = this.agentSyncService.effects$.subscribe((effects) => {
+      if (!effects.refreshTasks) {
+        return;
+      }
+
+      if (!effects.affectedDates || effects.affectedDates.some((date) => this.matchesCurrentMonth(date))) {
+        this.loadCalendar();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.syncSubscription?.unsubscribe();
   }
 
   loadCalendar(): void {
@@ -205,5 +222,10 @@ export class MonthlyCalendarComponent implements OnInit {
     };
     const colorClass = baseClasses[priority] || 'bg-gray-500';
     return isCompleted ? `${colorClass} opacity-50` : colorClass;
+  }
+
+  private matchesCurrentMonth(date: string): boolean {
+    const currentMonth = `${this.currentDate.getFullYear()}-${String(this.currentDate.getMonth() + 1).padStart(2, '0')}`;
+    return date.startsWith(currentMonth);
   }
 }

@@ -8,6 +8,7 @@ import oauthRoutes from './routes/oauth.routes';
 import taskRoutes from './routes/task.routes';
 import userRoutes from './routes/user.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import aiRoutes from './routes/ai.routes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import logger from './config/logger';
 
@@ -83,6 +84,7 @@ app.use('/api/auth', oauthRoutes); // OAuth routes
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/ai', aiRoutes); // AI Agent routes
 
 // Error handling
 app.use(notFoundHandler);

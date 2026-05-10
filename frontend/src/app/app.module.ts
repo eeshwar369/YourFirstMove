@@ -45,6 +45,7 @@ import { TaskListComponent } from './features/tasks/task-list/task-list.componen
 import { TaskItemComponent } from './features/tasks/task-item/task-item.component';
 import { AnalyticsDashboardComponent } from './features/analytics/analytics-dashboard/analytics-dashboard.component';
 import { SettingsComponent } from './features/settings/settings.component';
+import { AiAssistantComponent } from './features/ai-assistant/ai-assistant.component';
 import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
 
 import { environment } from '../environments/environment';
@@ -63,6 +64,7 @@ import { environment } from '../environments/environment';
     TaskItemComponent,
     AnalyticsDashboardComponent,
     SettingsComponent,
+    AiAssistantComponent,
     LoadingSpinnerComponent,
   ],
   imports: [

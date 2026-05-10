@@ -16,6 +16,7 @@ A full-stack productivity platform for managing daily and monthly tasks. Feature
 - **Productivity Streaks**: Gamified daily completion tracking
 - **Progressive Web App**: Offline functionality with background sync
 - **Analytics Dashboard**: Productivity trends and statistics
+- **AI Copilot**: OpenAI/Anthropic powered agent that can manage tasks, analytics, and settings through chat
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile
 
 ## Technology Stack
@@ -85,6 +86,13 @@ JWT_EXPIRES_IN=7d
 TWILIO_ACCOUNT_SID=your_twilio_account_sid
 TWILIO_AUTH_TOKEN=your_twilio_auth_token
 TWILIO_PHONE_NUMBER=+1234567890
+
+# AI (Optional - enable the in-app agent)
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-5-mini
+ANTHROPIC_API_KEY=your_anthropic_api_key
+ANTHROPIC_MODEL=claude-sonnet-4-20250514
+AI_DEFAULT_PROVIDER=openai
 
 # Notification
 NOTIFICATION_WINDOW_MINUTES=30
@@ -244,6 +252,14 @@ npx knex migrate:make migration_name
 - `GET /api/analytics/completion` - Get completion rate data
 - `GET /api/analytics/trends` - Get productivity trends
 - `GET /api/analytics/streaks` - Get streak history
+
+### AI Endpoints
+
+- `GET /api/ai/status` - Check configured providers and models
+- `POST /api/ai/chat` - Send a natural language request to the agent
+- `GET /api/ai/conversation` - Retrieve conversation history
+- `DELETE /api/ai/conversation` - Clear conversation history
+- `GET /api/ai/suggestions` - Get AI-generated productivity suggestions
 
 ## Architecture
 

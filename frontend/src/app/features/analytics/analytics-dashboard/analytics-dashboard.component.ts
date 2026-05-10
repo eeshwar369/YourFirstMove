@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AnalyticsService, CompletionRate, TaskStatistics } from '../../../core/services/analytics.service';
+import { Subscription } from 'rxjs';
+import { AgentSyncService } from '../../../core/services/agent-sync.service';
 
 @Component({
   selector: 'app-analytics-dashboard',
   templateUrl: './analytics-dashboard.component.html',
   styleUrls: ['./analytics-dashboard.component.scss']
 })
-export class AnalyticsDashboardComponent implements OnInit {
+export class AnalyticsDashboardComponent implements OnInit, OnDestroy {
   loading = false;
   completionRate: CompletionRate | null = null;
   statistics: TaskStatistics | null = null;
@@ -19,11 +21,24 @@ export class AnalyticsDashboardComponent implements OnInit {
     { value: 'quarter', label: 'Last 90 Days' },
     { value: 'year', label: 'Last Year' }
   ];
+  private syncSubscription?: Subscription;
 
-  constructor(private analyticsService: AnalyticsService) {}
+  constructor(
+    private analyticsService: AnalyticsService,
+    private agentSyncService: AgentSyncService
+  ) {}
 
   ngOnInit(): void {
     this.loadAnalytics();
+    this.syncSubscription = this.agentSyncService.effects$.subscribe((effects) => {
+      if (effects.refreshAnalytics) {
+        this.loadAnalytics();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.syncSubscription?.unsubscribe();
   }
 
   loadAnalytics(): void {
