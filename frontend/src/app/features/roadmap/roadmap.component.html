@@ -119,7 +119,7 @@
           [style.top.px]="task.topPosition"
           [style.height.px]="task.height"
           [style.left]="'calc(' + (task.column * 100 / task.totalColumns) + '% + 8px)'"
-          [style.width]="'calc(' + (100 / task.totalColumns) + '% - 16px)'"
+          [style.width]="'calc(' + (task.columnSpan * 100 / task.totalColumns) + '% - 16px)'"
         >
           <!-- Priority Accent Bar -->
           <div class="priority-accent"></div>
