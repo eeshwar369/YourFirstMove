@@ -106,7 +106,6 @@ export class TaskService {
  * for a specific calendar date from the backend analytics engine.
  */
 getScheduleGaps(date: string): Observable<any> {
-  // Note: Ensure 'this.apiUrl' matches whatever base URL variable your service uses (e.g., this.baseUrl)
   return this.http.get<any>(`${this.API_URL}/tasks/analytics/gaps/${date}`);
 }
 }
