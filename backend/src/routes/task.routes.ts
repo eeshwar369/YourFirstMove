@@ -185,5 +185,18 @@ router.post('/duplicate-day', async (req: AuthRequest, res, next) => {
     next(error);
   }
 });
+// Get dead-air gaps and micro-task suggestions
+router.get('/analytics/gaps/:date', async (req: AuthRequest, res, next) => {
+  try {
+    const gapAnalysis = await taskService.getScheduleGaps(req.userId!, req.params.date);
+
+    res.json({
+      success: true,
+      data: gapAnalysis,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;
