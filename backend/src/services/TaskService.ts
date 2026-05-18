@@ -331,7 +331,7 @@ export class TaskService {
       for (const sourceTask of sourceTasks) {
         logger.info(`Duplicating task: ${sourceTask.title}`);
         
-        const newTask = await Task.query().insert({
+        const task = await Task.query().insert({
           user_id: userId,
           title: sourceTask.title,
           description: sourceTask.description || null,
@@ -342,10 +342,10 @@ export class TaskService {
           is_critical: Boolean(sourceTask.is_critical),
           is_completed: false,
           display_order: sourceTask.display_order || 0,
-        });
+        } as any); // Type cast added here to clear the infinite instantiation error
         
-        logger.info(`Created duplicate task with ID: ${newTask.id}`);
-        duplicatedTasks.push(newTask);
+        logger.info(`Created duplicate task with ID: ${task.id}`);
+        duplicatedTasks.push(task);
       }
 
       logger.info(`Successfully duplicated ${duplicatedTasks.length} tasks from ${normalizedSourceDate} to ${normalizedTargetDate}`);

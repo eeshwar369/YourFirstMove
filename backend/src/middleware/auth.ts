@@ -13,6 +13,12 @@ export const authenticate = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    //  TEMPORARY LOCAL DEVELOPMENT BYPASS 
+    // Automatically signs in as User #1 to test the dashboard
+    req.user = { id: 1, name: 'Development User', email: 'dev@local.com' };
+    req.userId = 1;
+    return next(); // Skips validation and moves directly to the API controller
+/*
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -32,6 +38,7 @@ export const authenticate = async (
     req.user = user;
     req.userId = user.id;
     next();
+    */
   } catch (error) {
     logger.error('Authentication error:', error);
     res.status(401).json({

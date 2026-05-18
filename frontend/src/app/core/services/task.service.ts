@@ -101,4 +101,11 @@ export class TaskService {
   private refreshTasks(): void {
     this.getTasks().subscribe();
   }
+  /**
+ * Fetches the computed dead-air gaps and micro-task coaching suggestions
+ * for a specific calendar date from the backend analytics engine.
+ */
+getScheduleGaps(date: string): Observable<any> {
+  return this.http.get<any>(`${this.API_URL}/tasks/analytics/gaps/${date}`);
+}
 }

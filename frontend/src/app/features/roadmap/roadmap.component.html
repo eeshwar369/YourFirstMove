@@ -94,123 +94,38 @@
     </button>
   </div>
 
-  <!-- Timeline View with Time Blocks -->
-  <div *ngIf="!loading && tasks.length > 0 && isTimelineView()" class="glass-strong card animate-scale-in" style="padding: 2rem;">
-    <div class="timeline-container">
-      <div class="timeline-wrapper">
-        <!-- 24-Hour Timeline Background -->
-        <div class="timeline-hours">
-        <div *ngFor="let slot of timeSlots" class="hour-line" [class.current-hour]="isCurrentHour(slot.hour)">
-          <span class="hour-label">{{ slot.displayTime }}</span>
-        </div>
+<!-- Timeline View with Time Blocks -->
+<div *ngIf="!loading && tasks.length > 0 && isTimelineView()" class="glass-strong card animate-scale-in" style="padding: 2rem;">
+    
+  <!-- Main Visual Roadmap View Container Wrapper -->
+  <div class="roadmap-viewport bg-slate-50 rounded-xl border border-slate-200 relative overflow-y-auto h-[78vh]">
+    
+    <!-- The 1440-Row Time Mesh (1 row track coordinate = 1 minute of the day) -->
+    <div class="roadmap-time-mesh grid relative w-full" style="grid-template-rows: repeat(1440, 1px); height: 1440px;">
+      
+      <!-- Render Tasks Dynamically mapped to precise row offsets -->
+      <div *ngFor="let entry of managedTimelineTasks"
+           [style.grid-row-start]="fetchRowPosition(entry.due_time)"
+           [style.grid-row-end]="fetchRowPosition(entry.end_time)"
+           [@elasticBump]="entry.animationState"
+           class="task-card shadow-sm rounded-lg p-3 bg-indigo-600 text-white flex flex-col transition-all border-l-4 border-indigo-400 absolute w-[95%] left-2 z-10">
+        <div class="font-semibold text-sm select-none">{{ entry.title }}</div>
+        <div class="text-xs text-indigo-200 mt-1 font-mono">{{ entry.due_time }} - {{ entry.end_time }}</div>
       </div>
 
-      <!-- Tasks as Time Blocks -->
-      <div class="timeline-tasks-container">
-        <div 
-          *ngFor="let task of getTimelineTasksWithPosition()"
-          class="timeline-task-block"
-          [class.priority-low]="task.priority === 'low'"
-          [class.priority-medium]="task.priority === 'medium'"
-          [class.priority-high]="task.priority === 'high'"
-          [class.priority-critical]="task.priority === 'critical'"
-          [class.completed]="task.is_completed"
-          [class.task-small]="task.height < 80"
-          [style.top.px]="task.topPosition"
-          [style.height.px]="task.height"
-          [style.left]="'calc(' + (task.column * 100 / task.totalColumns) + '% + 8px)'"
-          [style.width]="'calc(' + (100 / task.totalColumns) + '% - 16px)'"
-        >
-          <!-- Priority Accent Bar -->
-          <div class="priority-accent"></div>
-          
-          <!-- Task Content -->
-          <div class="task-content" (click)="openTaskDialog(task)">
-            <!-- Header -->
-            <div class="task-header">
-              <div class="task-title-section">
-                <div class="task-icon-wrapper">
-                  <mat-icon class="task-icon">{{ task.is_completed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
-                </div>
-                <h4 class="task-title" [class.completed-text]="task.is_completed">
-                  {{ task.title }}
-                </h4>
-              </div>
-              
-              <!-- Quick Actions -->
-              <div class="task-actions">
-                <button 
-                  (click)="onCompleteClick($event, task)"
-                  class="action-btn complete-btn"
-                  [class.completed-btn]="task.is_completed"
-                  [class.loading]="completingTaskId === task.id"
-                  [disabled]="completingTaskId === task.id"
-                  matTooltip="{{ task.is_completed ? 'Mark incomplete' : 'Mark complete' }}"
-                  type="button"
-                >
-                  <mat-icon *ngIf="completingTaskId !== task.id">{{ task.is_completed ? 'check_circle' : 'check' }}</mat-icon>
-                  <span *ngIf="completingTaskId === task.id" class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Description (for taller tasks) -->
-            <p class="task-description" *ngIf="task.description && task.height > 100">
-              {{ task.description }}
-            </p>
-
-            <!-- Footer -->
-            <div class="task-footer">
-              <!-- Time Badge -->
-              <div class="time-badge">
-                <mat-icon class="badge-icon">schedule</mat-icon>
-                <span class="badge-text">{{ task.startTime }} - {{ task.endTime }}</span>
-              </div>
-
-              <!-- Priority Badge (for taller tasks) -->
-              <div class="priority-badge" *ngIf="task.height > 80">
-                <span class="badge-dot"></span>
-                <span class="badge-text">{{ task.priority }}</span>
-              </div>
-
-              <!-- Critical Indicator -->
-              <div class="critical-indicator" *ngIf="task.is_critical && task.height > 80">
-                <mat-icon class="critical-icon">priority_high</mat-icon>
-              </div>
-
-              <!-- Delete Button (for taller tasks) -->
-              <button 
-                *ngIf="task.height > 100"
-                (click)="deleteTask(task, $event)"
-                class="action-btn delete-btn"
-                matTooltip="Delete task"
-              >
-                <mat-icon>delete_outline</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <!-- Completion Overlay -->
-          <div class="completion-overlay" *ngIf="task.is_completed">
-            <mat-icon class="completion-icon">check_circle</mat-icon>
-          </div>
-
-          <!-- Hover Glow Effect -->
-          <div class="hover-glow"></div>
-        </div>
-
-        <!-- Current Time Indicator -->
-        <div 
-          *ngIf="selectedDate === (currentTime | date:'yyyy-MM-dd')"
-          class="current-time-line"
-          [style.top.px]="(currentTime.getHours() * 60 + currentTime.getMinutes()) * (100 / 60)"
-        >
-          <div class="time-marker-line"></div>
-          <div class="time-marker-dot"></div>
-          <span class="time-marker-label">{{ currentTime | date:'h:mm a' }}</span>
-        </div>
+      <!-- Render Proactive "Micro-Task" suggestions right inside unallocated empty space holes -->
+      <div *ngFor="let emptyGap of discoveredTimelineGaps"
+           [style.grid-row-start]="fetchRowPosition(emptyGap.gap_start)"
+           [style.grid-row-end]="fetchRowPosition(emptyGap.gap_end)"
+           class="gap-coaching-box border border-dashed border-emerald-300 bg-emerald-50/60 rounded-lg p-2 absolute w-[95%] left-2 flex items-center justify-between text-xs text-emerald-800 italic z-0">
+        <span>💡 {{ emptyGap.suggestion }}</span>
+        <span class="font-mono text-emerald-600 font-bold ml-2 bg-emerald-100 px-2 py-0.5 rounded-full">{{ emptyGap.duration_minutes }}m gap</span>
       </div>
+
     </div>
+  </div>
+
+</div>
 
     <!-- Unscheduled Tasks -->
     <div *ngIf="getUnscheduledTasks().length > 0" class="mt-8 pt-8" style="border-top: 1px solid var(--color-border);">
@@ -403,4 +318,3 @@
       </div>
     </div>
   </div>
-</div>
