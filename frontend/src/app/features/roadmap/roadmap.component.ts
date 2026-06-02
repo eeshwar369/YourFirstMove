@@ -19,6 +19,7 @@ interface TimeSlot {
   styleUrls: ['./roadmap.component.scss']
 })
 export class RoadmapComponent implements OnInit {
+  debugMode = true;
   tasks: Task[] = [];
   loading = false;
   completingTaskId: number | null = null;
@@ -147,63 +148,102 @@ export class RoadmapComponent implements OnInit {
   }
 
   // Assign columns to overlapping tasks so they don't overlap visually
-  assignColumnsToTasks(tasks: any[]): any[] {
-    // Sort by start time
-    const sorted = [...tasks].sort((a, b) => a.startMinutes - b.startMinutes);
-    
-    // Track which columns are occupied at each time
-    const columns: any[][] = [];
-    
-    sorted.forEach(task => {
-      const taskEnd = task.startMinutes + task.durationMinutes;
-      
-      // Find the first available column
-      let columnIndex = 0;
-      let placed = false;
-      
-      while (!placed) {
-        if (!columns[columnIndex]) {
-          columns[columnIndex] = [];
-        }
-        
-        // Check if this column is free at this time
-        const hasOverlap = columns[columnIndex].some(existingTask => {
-          const existingEnd = existingTask.startMinutes + existingTask.durationMinutes;
-          return !(taskEnd <= existingTask.startMinutes || task.startMinutes >= existingEnd);
-        });
-        
-        if (!hasOverlap) {
-          task.column = columnIndex;
-          task.totalColumns = 1; // Will be updated later
-          columns[columnIndex].push(task);
-          placed = true;
-        } else {
-          columnIndex++;
-        }
+assignColumnsToTasks(tasks: any[]): any[] {
+  // Sort tasks by start time
+  const sorted = [...tasks].sort(
+    (a, b) => a.startMinutes - b.startMinutes
+  );
+
+  // Store columns
+  const columns: any[][] = [];
+
+  sorted.forEach(task => {
+    const taskEnd =
+      task.startMinutes + task.durationMinutes;
+
+    let columnIndex = 0;
+    let placed = false;
+
+    while (!placed) {
+      // Create column if missing
+      if (!columns[columnIndex]) {
+        columns[columnIndex] = [];
+      }
+
+      // Check overlap with existing tasks
+      const hasOverlap = columns[columnIndex].some(existingTask => {
+        const existingEnd =
+          existingTask.startMinutes +
+          existingTask.durationMinutes;
+
+        return !(
+          taskEnd <= existingTask.startMinutes ||
+          task.startMinutes >= existingEnd
+        );
+      });
+
+      if (!hasOverlap) {
+        // Assign task to column
+        task.column = columnIndex;
+
+        columns[columnIndex].push(task);
+
+        placed = true;
+      } else {
+        columnIndex++;
+      }
+    }
+  });
+
+  // Calculate total overlapping columns
+  sorted.forEach(task => {
+    const taskEnd =
+      task.startMinutes + task.durationMinutes;
+
+    let maxColumns = 1;
+
+    sorted.forEach(otherTask => {
+      const otherEnd =
+        otherTask.startMinutes +
+        otherTask.durationMinutes;
+
+      const overlaps = !(
+        taskEnd <= otherTask.startMinutes ||
+        task.startMinutes >= otherEnd
+      );
+
+      if (overlaps) {
+        maxColumns = Math.max(
+          maxColumns,
+          otherTask.column + 1
+        );
       }
     });
-    
-    // Update totalColumns for each task based on max columns at that time
-    sorted.forEach(task => {
-      const taskEnd = task.startMinutes + task.durationMinutes;
-      let maxColumns = 1;
-      
-      // Find max columns among overlapping tasks
-      sorted.forEach(otherTask => {
-        const otherEnd = otherTask.startMinutes + otherTask.durationMinutes;
-        const overlaps = !(taskEnd <= otherTask.startMinutes || task.startMinutes >= otherEnd);
-        
-        if (overlaps) {
-          maxColumns = Math.max(maxColumns, otherTask.column + 1);
-        }
-      });
-      
-      task.totalColumns = maxColumns;
-    });
-    
-    return sorted;
-  }
 
+    task.totalColumns = maxColumns;
+
+    // ===== DEBUG MODE INFO =====
+    if (this.debugMode) {
+      task.debugInfo = {
+        column: task.column,
+        totalColumns: task.totalColumns,
+        startMinutes: task.startMinutes,
+        durationMinutes: task.durationMinutes,
+        overlapGroup: `group-${task.column}`
+      };
+    }
+
+    console.log('DEBUG TASK:', {
+      title: task.title,
+      column: task.column,
+      totalColumns: task.totalColumns,
+      startMinutes: task.startMinutes,
+      durationMinutes: task.durationMinutes
+    });
+  });
+
+  return sorted;
+}
   calculateEndTime(startTime: string, durationHours: number): string {
     const [hour, minute] = startTime.split(':').map(Number);
     const totalMinutes = hour * 60 + minute + (durationHours * 60);
@@ -318,7 +358,7 @@ export class RoadmapComponent implements OnInit {
       data: { task }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.loadTasks();
       }

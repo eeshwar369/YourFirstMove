@@ -758,3 +758,17 @@
     background: var(--color-text-tertiary);
   }
 }
+
+.debug-overlay {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(255, 0, 0, 0.9);
+  color: white;
+  padding: 4px;
+  border-radius: 6px;
+  font-size: 10px;
+  z-index: 1000;
+  line-height: 1.4;
+  pointer-events: none;
+}

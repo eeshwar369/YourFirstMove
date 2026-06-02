@@ -110,6 +110,7 @@
         <div 
           *ngFor="let task of getTimelineTasksWithPosition()"
           class="timeline-task-block"
+[style.border]="debugMode ? '2px dashed red' : ''"
           [class.priority-low]="task.priority === 'low'"
           [class.priority-medium]="task.priority === 'medium'"
           [class.priority-high]="task.priority === 'high'"
@@ -123,7 +124,13 @@
         >
           <!-- Priority Accent Bar -->
           <div class="priority-accent"></div>
-          
+          <!-- DEBUG OVERLAY -->
+<div *ngIf="debugMode" class="debug-overlay">
+  <div>Col: {{ task.column }}</div>
+  <div>Total: {{ task.totalColumns }}</div>
+  <div>Start: {{ task.startMinutes }}</div>
+  <div>Duration: {{ task.durationMinutes }}m</div>
+</div>
           <!-- Task Content -->
           <div class="task-content" (click)="openTaskDialog(task)">
             <!-- Header -->

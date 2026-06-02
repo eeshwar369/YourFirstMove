@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { TaskService } from '../../core/services/task.service';
 import { Task } from '../../core/models/task.model';
-import { Router } from '@angular/router';
 
 interface CalendarDay {
   date: Date;
@@ -53,7 +53,6 @@ export class MonthlyCalendarComponent implements OnInit {
         const tasks = response.data.tasks;
         console.log('Received tasks:', tasks.length);
         
-        // Log ALL task dates to see what we have
         const tasksByDate = tasks.reduce((acc: any, task) => {
           const date = task.due_date.split('T')[0];
           if (!acc[date]) acc[date] = [];
@@ -95,13 +94,12 @@ export class MonthlyCalendarComponent implements OnInit {
     }
 
     // Add next month days to complete the grid
-    const remainingDays = 42 - this.calendarDays.length; // 6 rows * 7 days
+    const remainingDays = 42 - this.calendarDays.length; 
     for (let day = 1; day <= remainingDays; day++) {
       const date = new Date(year, month + 1, day);
       this.calendarDays.push(this.createCalendarDay(date, false, tasks));
     }
 
-    // Log summary
     const daysWithTasks = this.calendarDays.filter(d => d.totalCount > 0);
     console.log('Calendar generated:', {
       totalDays: this.calendarDays.length,
@@ -111,34 +109,26 @@ export class MonthlyCalendarComponent implements OnInit {
   }
 
   createCalendarDay(date: Date, isCurrentMonth: boolean, allTasks: Task[]): CalendarDay {
-    // Create date string in local timezone (YYYY-MM-DD)
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const dateString = `${year}-${month}-${day}`;
     
-    // Get today's date in same format
     const today = new Date();
     const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     
-    // Filter tasks for this date - compare date strings
     const dayTasks = allTasks.filter(t => {
-      // Ensure we're comparing just the date part (YYYY-MM-DD)
       let taskDate = t.due_date;
       
-      // If the date includes time or timezone info, extract just the date part
       if (taskDate.includes('T')) {
         taskDate = taskDate.split('T')[0];
       } else if (taskDate.includes(' ')) {
         taskDate = taskDate.split(' ')[0];
       }
       
-      const matches = taskDate === dateString;
-      
-      return matches;
+      return taskDate === dateString;
     });
     
-    // Log if this day has tasks
     if (dayTasks.length > 0) {
       console.log(`Date ${dateString} has ${dayTasks.length} tasks:`, dayTasks.map(t => t.title));
     }

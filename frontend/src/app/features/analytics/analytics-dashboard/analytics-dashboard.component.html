@@ -133,7 +133,7 @@
         <div class="flex-1">
           <h4 class="font-semibold mb-1" style="color: var(--color-text-primary);">High Pending Tasks</h4>
           <p class="text-sm" style="color: var(--color-text-secondary);">
-            You have {{ statistics.pendingTasks }} pending tasks. Consider prioritizing them to improve your completion rate.
+            You have {{ statistics?.pendingTasks }} pending tasks. Consider prioritizing them to improve your completion rate.
           </p>
         </div>
       </div>
@@ -157,7 +157,7 @@
         <div class="flex-1">
           <h4 class="font-semibold mb-1" style="color: var(--color-text-primary);">Critical Tasks Pending</h4>
           <p class="text-sm" style="color: var(--color-text-secondary);">
-            You have {{ statistics.criticalTasks }} critical tasks that need attention. Don't forget to complete them!
+            You have {{ statistics?.criticalTasks }} critical tasks that need attention. Don't forget to complete them!
           </p>
         </div>
       </div>

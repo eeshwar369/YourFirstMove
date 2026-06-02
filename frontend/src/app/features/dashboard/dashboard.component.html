@@ -92,8 +92,7 @@
         
         <div class="flex items-center gap-4">
           <span *ngIf="currentUser" class="text-sm font-medium" style="color: var(--color-text-secondary);">
-            Welcome, <span style="color: var(--color-text-primary);">{{ currentUser.name }}</span>
-          </span>
+Welcome, <span style="color: var(--color-text-primary);">{{ currentUser?.name }}</span>          </span>
         </div>
       </div>
     </header>
