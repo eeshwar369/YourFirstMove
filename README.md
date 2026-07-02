@@ -78,7 +78,8 @@ DB_USER=root
 DB_PASSWORD=your_password
 
 # JWT (REQUIRED: Must be 32+ characters, secure, non-default example key)
-JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
+# Generate a key using: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+JWT_SECRET=
 JWT_EXPIRES_IN=7d
 
 # Twilio
